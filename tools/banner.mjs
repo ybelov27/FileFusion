@@ -60,11 +60,12 @@ rows.forEach((row, ri) => {
 
 const TAG = 'convert any file  ·  right in your browser  ·  free &amp; open source';
 const themes = {
-    light: { shadow: '#9aa0a6', tag: '#5f6368', bar: 0.9 },
-    dark: { shadow: '#6e7681', tag: '#8b949e', bar: 1 },
+    // Light blue to blue only. Deeper on white for contrast, brighter on GitHub's dark background.
+    light: { stops: ['#5ab0ff', '#2b8cf0', '#1560d4'], shadow: '#93b9e6', sheen: 0.35, tag: '#5f6368', bar: 0.9 },
+    dark: { stops: ['#a5d8ff', '#5aaeff', '#2a7ef0'], shadow: '#3d6ea8', sheen: 0.28, tag: '#8b949e', bar: 1 },
 };
 
-function svg({ shadow, tag, bar }) {
+function svg({ stops, shadow, sheen, tag, bar }) {
     const artW = cols * CW, barY = PAD_TOP + ARTH + 22;
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-labelledby="t">
 <title id="t">File Fusion: convert any file, right in your browser, free and open source</title>
@@ -75,9 +76,14 @@ function svg({ shadow, tag, bar }) {
 </style>
 <defs>
   <linearGradient id="fill" x1="${X0}" y1="0" x2="${X0 + artW}" y2="0" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#1a73e8"/>
-    <stop offset="0.55" stop-color="#6142d4"/>
-    <stop offset="1" stop-color="#a142f4"/>
+    <stop offset="0" stop-color="${stops[0]}"/>
+    <stop offset="0.5" stop-color="${stops[1]}"/>
+    <stop offset="1" stop-color="${stops[2]}"/>
+  </linearGradient>
+  <linearGradient id="sheen" x1="0" y1="${PAD_TOP}" x2="0" y2="${PAD_TOP + ARTH}" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#fff" stop-opacity="${sheen}"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#001a40" stop-opacity="${(sheen * 0.45).toFixed(2)}"/>
   </linearGradient>
   <linearGradient id="glint" x1="0" y1="0" x2="1" y2="0">
     <stop offset="0" stop-color="#fff" stop-opacity="0"/>
@@ -88,6 +94,7 @@ function svg({ shadow, tag, bar }) {
 </defs>
 <path d="${lines.trim()}" fill="none" stroke="${shadow}" stroke-width="${SW}" stroke-linecap="square"/>
 <g fill="url(#fill)">${blocks}</g>
+<g clip-path="url(#letters)"><rect x="0" y="${PAD_TOP}" width="${W}" height="${ARTH + 1}" fill="url(#sheen)"/></g>
 <g clip-path="url(#letters)"><g transform="skewX(-20)"><rect class="shine" x="0" y="${PAD_TOP - 10}" width="180" height="${ARTH + 20}" fill="url(#glint)"/></g></g>
 <rect x="${X0}" y="${barY}" width="${artW}" height="3" rx="1.5" fill="url(#fill)" opacity="${bar}"/>
 <text x="${W / 2}" y="${barY + 42}" text-anchor="middle" fill="${tag}" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="17" letter-spacing="0.5">${TAG}</text>
