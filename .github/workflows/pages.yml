@@ -2,7 +2,7 @@ name: Deploy static UI to GitHub Pages
 
 on:
   push:
-    branches: ["main", "core-system-7411680520166854523"]
+    branches: ["master"]
 
   workflow_dispatch:
 
