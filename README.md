@@ -16,6 +16,8 @@
 ![Private by design](https://img.shields.io/badge/privacy-100%25%20in--browser-1e8e3e?style=flat&logo=letsencrypt&logoColor=white)
 ![Sign in with Google](https://img.shields.io/badge/auth-Google%20Identity%20Services-4285F4?style=flat&logo=google&logoColor=white)
 
+[![File Fusion: convert any file in seconds, right in your browser](.github/social-preview.png)](https://ybelov27.github.io/FileFusion/)
+
 ![File Fusion converter](ui/converter-screenshot.png)
 
 <p align="center">
