@@ -111,6 +111,31 @@ a {
   background: #f6f8fa;
 }
 
+.gh-star-icon {
+  flex-shrink: 0;
+}
+
+.gh-star-icon .star-outline {
+  fill: currentColor;
+  transition: fill 0.15s;
+}
+
+.gh-star-icon .star-fill {
+  fill: #e3b341;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.gh-star:hover .gh-star-icon .star-fill,
+.gh-star:focus-visible .gh-star-icon .star-fill {
+  opacity: 1;
+}
+
+.gh-star:hover .gh-star-icon .star-outline,
+.gh-star:focus-visible .gh-star-icon .star-outline {
+  fill: #c69026;
+}
+
 .gh-count {
   padding-left: 8px;
   border-left: 1px solid #dadce0;
