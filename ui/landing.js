@@ -56,6 +56,8 @@
       document.querySelectorAll("[data-gh-stars]").forEach((el) => {
         el.textContent = repo.stargazers_count.toLocaleString();
         el.hidden = false;
+        const count = el.closest(".gh-count");
+        if (count) count.hidden = false;
       });
     })
     .catch(() => {

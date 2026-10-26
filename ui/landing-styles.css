@@ -139,6 +139,9 @@ a {
 .gh-count {
   padding-left: 8px;
   border-left: 1px solid #dadce0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .trust a {
@@ -854,7 +857,7 @@ a {
 }
 
 @media (max-width: 420px) {
-  .gh-star span:not(.gh-count),
+  .gh-star > span:not(.gh-count),
   .nav-user {
     display: none;
   }
