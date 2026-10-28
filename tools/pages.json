@@ -142,5 +142,71 @@
     "from": "HTML",
     "to": "Text",
     "icon": "notes"
+  },
+  {
+    "slug": "heic-to-jpg",
+    "from": "HEIC",
+    "to": "JPG",
+    "icon": "photo_camera"
+  },
+  {
+    "slug": "heic-to-png",
+    "from": "HEIC",
+    "to": "PNG",
+    "icon": "photo_camera"
+  },
+  {
+    "slug": "mp4-to-mp3",
+    "from": "MP4",
+    "to": "MP3",
+    "icon": "music_video"
+  },
+  {
+    "slug": "video-to-gif",
+    "from": "Video",
+    "to": "GIF",
+    "icon": "gif_box"
+  },
+  {
+    "slug": "wav-to-mp3",
+    "from": "WAV",
+    "to": "MP3",
+    "icon": "audiotrack"
+  },
+  {
+    "slug": "compress-image",
+    "from": "Image",
+    "to": "Compressed",
+    "icon": "compress"
+  },
+  {
+    "slug": "resize-image",
+    "from": "Image",
+    "to": "Resized",
+    "icon": "photo_size_select_large"
+  },
+  {
+    "slug": "merge-pdf",
+    "from": "PDF",
+    "to": "Merged PDF",
+    "icon": "call_merge"
+  },
+  {
+    "slug": "split-pdf",
+    "from": "PDF",
+    "to": "Split PDFs",
+    "icon": "call_split"
+  },
+  {
+    "slug": "compress-pdf",
+    "from": "PDF",
+    "to": "Smaller PDF",
+    "icon": "compress"
+  },
+  {
+    "slug": "organize-pdf",
+    "from": "PDF",
+    "to": "Organized PDF",
+    "icon": "view_module"
   }
 ]

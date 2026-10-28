@@ -45,4 +45,15 @@ dist/
 /ui/markdown-to-pdf.html
 /ui/text-to-pdf.html
 /ui/html-to-text.html
+/ui/heic-to-jpg.html
+/ui/heic-to-png.html
+/ui/mp4-to-mp3.html
+/ui/video-to-gif.html
+/ui/wav-to-mp3.html
+/ui/compress-image.html
+/ui/resize-image.html
+/ui/merge-pdf.html
+/ui/split-pdf.html
+/ui/compress-pdf.html
+/ui/organize-pdf.html
 # END generated converter pages

@@ -13,9 +13,6 @@
     "format": "prettier --write .",
     "banner": "node tools/banner.ts"
   },
-  "dependencies": {
-    "@imagemagick/magick-wasm": "^0.0.45"
-  },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "playwright-core": "^1.48.2",
@@ -25,5 +22,13 @@
   },
   "peerDependencies": {
     "typescript": "^7"
+  },
+  "dependencies": {
+    "@breezystack/lamejs": "^1.2.7",
+    "fflate": "^0.8.3",
+    "gifenc": "^1.0.3",
+    "libheif-js": "^1.23.5",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299"
   }
 }

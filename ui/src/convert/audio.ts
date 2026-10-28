@@ -47,7 +47,3 @@ export function audioBufferToWav(audio: AudioBuffer): Blob {
   }
   return new Blob([buf], { type: "audio/wav" });
 }
-
-export async function audioToWav(file: Blob): Promise<Blob> {
-  return audioBufferToWav(await decodeAudio(file));
-}
