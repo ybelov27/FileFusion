@@ -19,7 +19,7 @@ Then open http://localhost:8000. Before opening a pull request, run `npm run bui
 
 ## Good first contributions
 
-- New formats: HEIC, GIF output, DOCX to text, YAML input, MP4 to GIF
+- New formats: DOCX to text, YAML input, EPUB to PDF, SVG optimization
 - Translations of the landing page
 - Accessibility and mobile polish
 

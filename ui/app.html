@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com; connect-src 'self' https://api.github.com https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; object-src 'none'; base-uri 'none'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client; worker-src 'self'; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com; connect-src 'self' https://api.github.com https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; object-src 'none'; base-uri 'none'; form-action 'none'"
     />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Converter · File Fusion</title>
@@ -106,6 +106,13 @@
             <span class="material-icons">swap_horiz</span> Convert
             <span class="nav-count" id="queue-count"></span>
           </li>
+          <li data-view="compress">
+            <span class="material-icons">photo_size_select_large</span> Compress
+            &amp; resize
+          </li>
+          <li data-view="pdf">
+            <span class="material-icons">picture_as_pdf</span> PDF tools
+          </li>
           <li data-view="history">
             <span class="material-icons">history</span> History
             <span class="nav-count" id="history-count"></span>
@@ -132,9 +139,9 @@
             <p>Or click to choose files. You can also paste an image.</p>
             <button class="browse-btn" type="button">Browse Files</button>
             <div class="format-hint">
-              Images (PNG, JPG, WEBP, GIF, SVG, BMP, ICO) · Audio (MP3, M4A,
-              OGG, FLAC) · CSV · TSV · JSON · JSON Lines · XML · Markdown · HTML
-              · TXT
+              Images (PNG, JPG, HEIC, WEBP, GIF, SVG, BMP, ICO) · Video (MP4,
+              MOV, WEBM) · Audio (MP3, M4A, WAV, OGG, FLAC) · CSV · TSV · JSON ·
+              XML · Markdown · HTML · TXT · PDFs open in PDF tools
             </div>
             <input type="file" id="file-input" multiple hidden />
           </div>
@@ -211,6 +218,10 @@
             </div>
           </div>
         </section>
+
+        <section id="view-compress" hidden></section>
+
+        <section id="view-pdf" hidden></section>
 
         <section id="view-history" hidden>
           <div class="history-head">

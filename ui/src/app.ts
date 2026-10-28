@@ -23,6 +23,8 @@ import {
 } from "./dom.ts";
 import { handoff } from "./handoff.ts";
 import { wireShareButtons } from "./share.ts";
+import type { Tool, ToolContext } from "./tools/context.ts";
+import type { PdfTab } from "./tools/pdf-ui.ts";
 
 type Status = "ready" | "working" | "done" | "error";
 
@@ -43,7 +45,13 @@ interface HistoryEntry {
   at: number;
 }
 
-type View = "convert" | "history";
+const VIEWS = ["convert", "compress", "pdf", "history"] as const;
+type View = (typeof VIEWS)[number];
+const isView = (v: string | null | undefined): v is View =>
+  VIEWS.includes(v as View);
+const PDF_TABS: readonly PdfTab[] = ["merge", "split", "organize", "compress"];
+const isPdfFile = (f: File) =>
+  extOf(f.name) === "pdf" || f.type === "application/pdf";
 
 const queue: QueueItem[] = [];
 let nextId = 1;
@@ -60,6 +68,7 @@ const ICONS: Record<Kind, string> = {
   html: "code",
   text: "description",
   audio: "audiotrack",
+  video: "movie",
 };
 
 function iconFor(file: File): string {
@@ -130,7 +139,17 @@ const bulkTarget = byId<HTMLSelectElement>("bulk-target");
 
 function addFiles(files: Iterable<File>): void {
   let rejected = 0;
-  for (const file of files) {
+  const all = Array.from(files);
+  // PDFs have their own tools; send them there instead of rejecting them.
+  const pdfs = all.filter(isPdfFile);
+  if (pdfs.length) {
+    void openPdfTools(pdfs.length > 1 ? "merge" : "organize").then((t) =>
+      t.addFiles(pdfs),
+    );
+    toast("PDFs opened in PDF tools.");
+    if (pdfs.length === all.length) return;
+  }
+  for (const file of all.filter((f) => !isPdfFile(f))) {
     const targets = targetsFor(file);
     const first = targets[0];
     if (!first) {
@@ -326,9 +345,13 @@ async function convertAll(): Promise<void> {
 
 /* ---------- Views & input ---------- */
 
+let activeView: View = "convert";
+
 function showView(name: View): void {
-  byId("view-convert").hidden = name !== "convert";
-  byId("view-history").hidden = name !== "history";
+  activeView = name;
+  for (const v of VIEWS) byId(`view-${v}`).hidden = v !== name;
+  if (name === "compress") void openCompress();
+  if (name === "pdf") void openPdfTools();
   document
     .querySelectorAll<HTMLElement>(".nav-links li")
     .forEach((li) => li.classList.toggle("active", li.dataset.view === name));
@@ -353,12 +376,61 @@ byId("new-btn").addEventListener("click", () => {
   showView("convert");
   input.click();
 });
-acceptDrops(drop, addFiles);
+
+/* ---------- Tools (loaded the first time they are opened) ---------- */
+
+const toolContext: ToolContext = {
+  toast,
+  addHistory: (entry) => addHistory({ ...entry, at: Date.now() }),
+};
+let compressTool: Promise<Tool> | undefined;
+let pdfTool: Promise<Tool & { showTab(tab: PdfTab): void }> | undefined;
+
+function openCompress(): Promise<Tool> {
+  compressTool ??= import("./tools/compress-ui.ts").then((m) =>
+    m.mountCompress(byId("view-compress"), toolContext),
+  );
+  if (activeView !== "compress") showView("compress");
+  return compressTool;
+}
+
+async function openPdfTools(tab?: PdfTab): Promise<Tool> {
+  pdfTool ??= import("./tools/pdf-ui.ts").then((m) =>
+    m.mountPdfTools(byId("view-pdf"), toolContext),
+  );
+  if (activeView !== "pdf") showView("pdf");
+  const tool = await pdfTool;
+  if (tab) tool.showTab(tab);
+  return tool;
+}
+
+/** Sends dropped or pasted files to whichever view is open. */
+function routeFiles(files: File[]): void {
+  if (activeView === "compress")
+    void openCompress().then((t) => t.addFiles(files));
+  else if (activeView === "pdf")
+    void openPdfTools().then((t) => t.addFiles(files));
+  else addFiles(files);
+}
+
+const activeZone = () =>
+  document.querySelector<HTMLElement>(`#view-${activeView} .upload-area`) ??
+  drop;
+acceptDrops(document.body, (files) => routeFiles(Array.from(files)));
+for (const type of ["dragenter", "dragover"] as const)
+  document.addEventListener(type, () => activeZone().classList.add("dragging"));
+for (const type of ["dragleave", "drop"] as const)
+  document.addEventListener(type, (e) => {
+    if (type === "drop" || !e.relatedTarget)
+      document
+        .querySelectorAll(".upload-area.dragging")
+        .forEach((z) => z.classList.remove("dragging"));
+  });
 
 document.addEventListener("paste", (e) => {
   const files = Array.from(e.clipboardData?.files ?? []);
   if (!files.length) return;
-  addFiles(
+  routeFiles(
     files.map((f, i) =>
       f.name && f.name !== "image.png"
         ? f
@@ -399,7 +471,7 @@ byId("scrim").addEventListener("click", () => setSidebar(false));
 document.querySelectorAll<HTMLElement>(".nav-links li").forEach((li) =>
   li.addEventListener("click", () => {
     const view = li.dataset.view;
-    if (view === "convert" || view === "history") showView(view);
+    if (isView(view)) showView(view);
   }),
 );
 
@@ -484,8 +556,19 @@ void auth.renderButton(byId("gsi-nudge"), { text: "continue_with" });
 
 /* ---------- Files handed over from the landing page ---------- */
 
-void handoff.take().then((files) => {
-  if (files.length) addFiles(files);
+// Links like app.html?view=pdf&tool=merge (from the landing pages) open a tool.
+const startView = new URLSearchParams(location.search).get("view");
+const startTab = new URLSearchParams(location.search).get("tool");
+const opening: Promise<unknown> =
+  startView === "pdf"
+    ? openPdfTools(PDF_TABS.find((t) => t === startTab))
+    : startView === "compress"
+      ? openCompress()
+      : Promise.resolve();
+
+void opening.then(async () => {
+  const files = await handoff.take();
+  if (files.length) routeFiles(files);
 });
 renderQueue();
 renderHistory();

@@ -22,10 +22,13 @@ export const FORMATS = {
   xml: { label: "XML", mime: "application/xml" },
   txt: { label: "Text", mime: "text/plain" },
   wav: { label: "WAV", mime: "audio/wav" },
+  mp3: { label: "MP3", mime: "audio/mpeg" },
+  gif: { label: "GIF (animated)", mime: "image/gif" },
 } satisfies Record<string, { label: string; mime: string; ext?: string }>;
 
 export type Target = keyof typeof FORMATS;
-export type Kind = "image" | "data" | "audio" | "markdown" | "html" | "text";
+export type Kind =
+  "image" | "data" | "audio" | "video" | "markdown" | "html" | "text";
 
 const IMAGE_IN = [
   "png",
@@ -37,9 +40,12 @@ const IMAGE_IN = [
   "svg",
   "avif",
   "ico",
+  "heic",
+  "heif",
 ];
 const DATA_IN = ["csv", "tsv", "json", "jsonl", "ndjson", "xml"];
 const AUDIO_IN = ["mp3", "wav", "ogg", "oga", "m4a", "aac", "flac", "opus"];
+const VIDEO_IN = ["mp4", "m4v", "mov", "webm"];
 
 const TARGETS_BY_KIND: Record<Kind, Target[]> = {
   image: ["png", "jpg", "webp", "pdf", "bmp", "ico", "datauri"],
@@ -47,7 +53,8 @@ const TARGETS_BY_KIND: Record<Kind, Target[]> = {
   markdown: ["html", "txt", "pdf"],
   html: ["txt", "md", "pdf"],
   text: ["html", "md", "pdf"],
-  audio: ["wav"],
+  audio: ["mp3", "wav"],
+  video: ["mp3", "wav", "gif"],
 };
 
 export function isTarget(value: string | null): value is Target {
@@ -65,6 +72,7 @@ export function kindOf(file: File): Kind | null {
   if (IMAGE_IN.includes(ext) || type.startsWith("image/")) return "image";
   if (DATA_IN.includes(ext)) return "data";
   if (AUDIO_IN.includes(ext) || type.startsWith("audio/")) return "audio";
+  if (VIDEO_IN.includes(ext) || type.startsWith("video/")) return "video";
   if (ext === "md" || ext === "markdown") return "markdown";
   if (ext === "html" || ext === "htm") return "html";
   if (ext === "txt") return "text";
@@ -77,6 +85,17 @@ const EXT_ALIASES: Record<string, string> = {
   htm: "html",
   ndjson: "jsonl",
 };
+
+/** iPhone photos: browsers other than Safari can't decode these natively. */
+export function isHeic(file: Blob & { name?: string }): boolean {
+  const ext = extOf(file.name ?? "");
+  return (
+    ext === "heic" ||
+    ext === "heif" ||
+    file.type === "image/heic" ||
+    file.type === "image/heif"
+  );
+}
 
 export function normalizedExt(file: File): string {
   const ext = extOf(file.name);

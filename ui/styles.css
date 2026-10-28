@@ -793,3 +793,223 @@ body {
     padding: 0;
   }
 }
+
+/* ---------- Tools: compress & resize, PDF tools ---------- */
+
+.tool-head {
+  margin-bottom: 16px;
+}
+
+.tool-head h2 {
+  font-size: 22px;
+  font-weight: 500;
+  color: #1f1f1f;
+}
+
+.tool-head p,
+.hint {
+  font-size: 14px;
+  color: #444746;
+  margin-top: 4px;
+}
+
+.tool-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  background-color: #f0f4f8;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.tool-settings .setting-group {
+  margin-bottom: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tool-settings .toolbar-actions {
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.tool-settings .toolbar-actions > * {
+  white-space: nowrap;
+}
+
+.tool-settings > .queue-item,
+.tool-settings > .hint {
+  flex-basis: 100%;
+  border: none;
+  padding: 0;
+}
+
+.tool-settings input[type="number"],
+.tool-settings input[type="text"],
+.tool-settings select {
+  padding: 8px 12px;
+  border: 1px solid #747775;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #1f1f1f;
+}
+
+.tool-settings input[type="number"] {
+  width: 110px;
+}
+
+.tool-settings input[type="text"] {
+  width: 180px;
+}
+
+.mode-group label,
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #1f1f1f;
+  cursor: pointer;
+}
+
+.range-value {
+  min-width: 40px;
+  font-size: 14px;
+  color: #444746;
+}
+
+.convert-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.spinner.small {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+}
+
+.order-btns {
+  display: flex;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 20px;
+  background: none;
+  color: #444746;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background-color: #e8eaed;
+}
+
+.tab.active {
+  background-color: #c2e7ff;
+  color: #001d35;
+}
+
+.tab .material-icons {
+  font-size: 18px;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.page-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e3e3e3;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: grab;
+  overflow: hidden;
+}
+
+.page-card:active {
+  cursor: grabbing;
+}
+
+.page-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 190px;
+  background: #f8fafd;
+  padding: 8px;
+}
+
+.page-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+  transition: transform 0.2s;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px;
+}
+
+.page-actions .icon-btn {
+  padding: 4px;
+}
+
+.page-actions .material-icons {
+  font-size: 20px;
+}
+
+.page-num {
+  min-width: 24px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444746;
+}
+
+@media (max-width: 800px) {
+  .tool-settings .toolbar-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .tool-settings .toolbar-actions > .convert-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .page-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+/* Tool views can be wide; never let them squeeze the sidebar. */
+.sidebar {
+  flex-shrink: 0;
+}

@@ -2,7 +2,7 @@
  * File Fusion in-browser conversion engine.
  * Every conversion runs locally: files never leave the user's device.
  */
-import { audioToWav } from "./audio.ts";
+import { audioBufferToWav, decodeAudio } from "./audio.ts";
 import {
   FORMATS,
   kindOf,
@@ -77,7 +77,24 @@ export async function convert(
   if (!targetsFor(file).includes(target))
     throw new Error(`Can't convert this file to ${format.label}.`);
 
-  if (kind === "audio") return blob(await audioToWav(file));
+  if (kind === "audio" || kind === "video") {
+    if (target === "gif") {
+      const { videoToGif } = await import("./video.ts");
+      return blob(await videoToGif(file));
+    }
+    const audio = await decodeAudio(file).catch(() => {
+      throw new Error(
+        kind === "video"
+          ? "Couldn't read the sound in this video (it may have no audio track)."
+          : "This audio format could not be decoded by your browser.",
+      );
+    });
+    if (target === "mp3") {
+      const { audioBufferToMp3 } = await import("./mp3.ts");
+      return blob(await audioBufferToMp3(audio));
+    }
+    return blob(audioBufferToWav(audio));
+  }
 
   if (kind === "image") {
     if (target === "pdf") return blob(await imageToPdf(file));

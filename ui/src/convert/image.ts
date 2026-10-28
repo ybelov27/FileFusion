@@ -1,6 +1,7 @@
 /*
  * Image conversions using the browser's own decoders and <canvas>.
  */
+import { isHeic } from "./formats.ts";
 import { buildPdf, type JpegPage } from "./pdf-writer.ts";
 
 export function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
@@ -16,8 +17,15 @@ export function makeCanvas(width: number, height: number): HTMLCanvasElement {
   return canvas;
 }
 
+/** Turns anything the browser can't decode natively (HEIC) into a PNG first. */
+export async function decodable(file: Blob): Promise<Blob> {
+  if (!isHeic(file)) return file;
+  const { heicToPng } = await import("./heic.ts");
+  return heicToPng(file);
+}
+
 export async function loadImage(file: Blob): Promise<HTMLImageElement> {
-  const url = URL.createObjectURL(file);
+  const url = URL.createObjectURL(await decodable(file));
   try {
     const img = new Image();
     img.decoding = "async";

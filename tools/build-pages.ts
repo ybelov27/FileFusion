@@ -11,15 +11,28 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const IMG = "image/*,.png,.jpg,.jpeg,.webp,.gif,.svg,.bmp,.avif,.ico";
 type Faq = [question: string, answer: string];
 
+interface ToolPage {
+  view: "compress" | "pdf";
+  tab?: "merge" | "split" | "organize" | "compress";
+  // Hero heading: plain words, then the highlighted word(s).
+  heading: [lead: string, accent: string];
+  title: string;
+  name: string; // e.g. "Merge PDF", used for cards, FAQ and schema.org
+  drop: [title: string, subtitle: string];
+  steps: [title: string, body: string][];
+}
+
 interface ConverterPage {
   slug: string;
   from: string;
   to: string;
   // Format preselected in the converter (a key of FORMATS in ui/src/convert/formats.ts).
-  target: string;
+  target?: string;
+  // Tool pages (compress, PDF tools) open a tool instead of the converter.
+  tool?: ToolPage;
   icon: string;
   accept: string;
-  group: "image" | "audio" | "data" | "text";
+  group: "image" | "audio" | "data" | "text" | "pdf";
   intro: string;
   uses: string[];
   faqs: Faq[];
@@ -640,6 +653,398 @@ const pages: ConverterPage[] = [
       ],
     ],
   },
+  {
+    slug: "heic-to-jpg",
+    from: "HEIC",
+    to: "JPG",
+    target: "jpg",
+    icon: "photo_camera",
+    accept: ".heic,.heif,image/heic,image/heif",
+    group: "image",
+    intro:
+      "Convert iPhone HEIC photos to JPG so they open on Windows, Android, older Macs and every website upload form.",
+    uses: [
+      "Open iPhone photos on a Windows PC",
+      "Upload photos to sites that reject HEIC",
+      "Email pictures to people on any device",
+    ],
+    faqs: [
+      [
+        "Why are my iPhone photos HEIC?",
+        "iPhones save photos as HEIC by default because it is about half the size of JPG at the same quality.",
+      ],
+      [
+        "Is the photo quality kept?",
+        "Yes. The photo is decoded at full resolution and saved as high-quality JPG.",
+      ],
+    ],
+  },
+  {
+    slug: "heic-to-png",
+    from: "HEIC",
+    to: "PNG",
+    target: "png",
+    icon: "photo_camera",
+    accept: ".heic,.heif,image/heic,image/heif",
+    group: "image",
+    intro:
+      "Turn iPhone HEIC photos into lossless PNG files for editing, design work and apps that don't read HEIC.",
+    uses: [
+      "Edit iPhone photos in any editor",
+      "Keep full quality for design work",
+      "Use photos in apps that only accept PNG",
+    ],
+    faqs: [
+      [
+        "Can I convert a whole camera roll at once?",
+        "Yes. Select or drop many HEIC files and use Convert all.",
+      ],
+      [
+        "Why is the PNG bigger than the HEIC?",
+        "PNG is lossless, so it stores every pixel exactly. HEIC uses much stronger compression.",
+      ],
+    ],
+  },
+  {
+    slug: "mp4-to-mp3",
+    from: "MP4",
+    to: "MP3",
+    target: "mp3",
+    icon: "music_video",
+    accept: "video/*,.mp4,.m4v,.mov,.webm",
+    group: "audio",
+    intro:
+      "Pull the soundtrack out of an MP4, MOV or WEBM video and save it as an MP3 that plays everywhere.",
+    uses: [
+      "Save a recorded talk or lecture as audio",
+      "Turn screen recordings into podcasts",
+      "Keep just the music from a video clip",
+    ],
+    faqs: [
+      [
+        "What bitrate is the MP3?",
+        "192 kbps, a good balance of quality and size for speech and music.",
+      ],
+      [
+        "Does it work for large videos?",
+        "Yes, though very long videos take longer because everything is processed on your device.",
+      ],
+    ],
+  },
+  {
+    slug: "video-to-gif",
+    from: "Video",
+    to: "GIF",
+    target: "gif",
+    icon: "gif_box",
+    accept: "video/*,.mp4,.m4v,.mov,.webm",
+    group: "image",
+    intro:
+      "Turn a short video clip into an animated GIF for chats, docs, READMEs and bug reports.",
+    uses: [
+      "Show a bug or feature in a GitHub issue",
+      "Make reaction GIFs from your own clips",
+      "Add looping demos to docs and slides",
+    ],
+    faqs: [
+      [
+        "How long can the GIF be?",
+        "The first 15 seconds of the video are converted at 10 frames per second and up to 480 pixels wide.",
+      ],
+      [
+        "Which videos work?",
+        "MP4, MOV and WEBM files that your browser can play.",
+      ],
+    ],
+  },
+  {
+    slug: "wav-to-mp3",
+    from: "WAV",
+    to: "MP3",
+    target: "mp3",
+    icon: "audiotrack",
+    accept: "audio/*,.wav",
+    group: "audio",
+    intro:
+      "Shrink large WAV recordings into MP3 files that are about ten times smaller and still sound great.",
+    uses: [
+      "Email or share long recordings",
+      "Save space on your phone",
+      "Upload audio to sites with size limits",
+    ],
+    faqs: [
+      [
+        "How much smaller will the file be?",
+        "Typically 85 to 90 percent smaller at 192 kbps.",
+      ],
+      [
+        "Can I convert M4A, FLAC or OGG to MP3 too?",
+        "Yes. Any audio your browser can play can be converted to MP3.",
+      ],
+    ],
+  },
+  {
+    slug: "compress-image",
+    from: "Image",
+    to: "Compressed",
+    tool: {
+      view: "compress",
+      heading: ["Compress", "images"],
+      title:
+        "Compress Images: Reduce JPG, PNG & HEIC Size Free, No Upload | File Fusion",
+      name: "Compress images",
+      drop: ["Drop images to compress", "JPG, PNG, WEBP, HEIC and more"],
+      steps: [
+        [
+          "Add your images",
+          "Drop photos above or choose them. Add a whole batch at once.",
+        ],
+        [
+          "Pick quality or a target size",
+          "Set a quality, or a size like 200 KB and File Fusion finds the best quality that fits.",
+        ],
+        [
+          "Download",
+          "See how much each file shrank, then download one by one or as a ZIP.",
+        ],
+      ],
+    },
+    icon: "compress",
+    accept: "image/*,.heic,.heif",
+    group: "image",
+    intro:
+      "Make photos smaller for email, job and school portals, and faster websites. Choose a quality, or a target size like 100 KB.",
+    uses: [
+      "Get photos under an upload limit like 100 KB",
+      "Send more pictures in one email",
+      "Speed up your website's images",
+    ],
+    faqs: [
+      [
+        "Can I hit an exact file size?",
+        "Choose Target file size and enter a size in KB. File Fusion picks the highest quality that fits, and scales the image down only if it has to.",
+      ],
+      [
+        "Will my photos look worse?",
+        "At the default 80% quality the difference is hard to see, while files are usually 50 to 80 percent smaller.",
+      ],
+    ],
+  },
+  {
+    slug: "resize-image",
+    from: "Image",
+    to: "Resized",
+    tool: {
+      view: "compress",
+      heading: ["Resize", "images"],
+      title:
+        "Resize Images: Change Photo Dimensions Free, No Upload | File Fusion",
+      name: "Resize images",
+      drop: ["Drop images to resize", "Set a maximum width and height"],
+      steps: [
+        ["Add your images", "Drop one photo or a whole folder's worth."],
+        [
+          "Set a maximum size",
+          "Enter a max width and/or height in pixels. Proportions are always kept.",
+        ],
+        ["Download", "Get resized images one by one or all together as a ZIP."],
+      ],
+    },
+    icon: "photo_size_select_large",
+    accept: "image/*,.heic,.heif",
+    group: "image",
+    intro:
+      "Resize photos to exact pixel dimensions for profile pictures, listings, slides and websites, without distorting them.",
+    uses: [
+      "Make profile and avatar pictures",
+      "Prepare product photos for online stores",
+      "Shrink huge camera photos for slides",
+    ],
+    faqs: [
+      [
+        "Will the image be stretched?",
+        "No. The image is scaled to fit inside the width and height you set, keeping its proportions.",
+      ],
+      [
+        "Can it make images bigger?",
+        "No. Images are only ever scaled down, since scaling up can't add real detail.",
+      ],
+    ],
+  },
+  {
+    slug: "merge-pdf",
+    from: "PDF",
+    to: "Merged PDF",
+    tool: {
+      view: "pdf",
+      tab: "merge",
+      heading: ["Merge", "PDF files"],
+      title: "Merge PDF: Combine PDF Files Free, No Upload | File Fusion",
+      name: "Merge PDF",
+      drop: ["Drop PDFs to merge", "You can add images too"],
+      steps: [
+        [
+          "Add your PDFs",
+          "Drop the PDFs (and any images) you want to combine.",
+        ],
+        ["Put them in order", "Use the arrows to arrange the files."],
+        ["Merge and download", "Get one PDF with every page, in your order."],
+      ],
+    },
+    icon: "call_merge",
+    accept: ".pdf,application/pdf,image/*,.heic",
+    group: "pdf",
+    intro:
+      "Combine several PDFs, and even photos or scans, into a single PDF in the order you choose.",
+    uses: [
+      "Combine application documents into one file",
+      "Join scanned pages into a single PDF",
+      "Bundle receipts for an expense report",
+    ],
+    faqs: [
+      [
+        "Is there a limit on files or pages?",
+        "No fixed limit. Very large documents just take a little longer on slower devices.",
+      ],
+      [
+        "Can I add images to the merged PDF?",
+        "Yes. JPG, PNG, HEIC and other images each become a page.",
+      ],
+    ],
+  },
+  {
+    slug: "split-pdf",
+    from: "PDF",
+    to: "Split PDFs",
+    tool: {
+      view: "pdf",
+      tab: "split",
+      heading: ["Split", "PDF files"],
+      title:
+        "Split PDF: Extract Pages From a PDF Free, No Upload | File Fusion",
+      name: "Split PDF",
+      drop: [
+        "Drop a PDF to split",
+        "Extract every page or just the ones you need",
+      ],
+      steps: [
+        ["Add your PDF", "Drop the PDF you want to split."],
+        ["Choose pages", "Split every page, or type ranges like 1-3, 5, 8-."],
+        [
+          "Download",
+          "Get one PDF per range (as a ZIP), or all selected pages in one file.",
+        ],
+      ],
+    },
+    icon: "call_split",
+    accept: ".pdf,application/pdf",
+    group: "pdf",
+    intro:
+      "Extract the pages you need from a PDF, or split it into one file per page.",
+    uses: [
+      "Send just the signed page of a contract",
+      "Break a scanned stack into separate documents",
+      "Pull one chapter out of an e-book",
+    ],
+    faqs: [
+      [
+        "How do I write page ranges?",
+        "Use commas and dashes: 1-3, 5, 8- means pages 1 to 3, page 5, and page 8 to the end.",
+      ],
+      [
+        "Can I get the pages in one file?",
+        "Yes. Tick “Put the selected pages into one PDF”.",
+      ],
+    ],
+  },
+  {
+    slug: "compress-pdf",
+    from: "PDF",
+    to: "Smaller PDF",
+    tool: {
+      view: "pdf",
+      tab: "compress",
+      heading: ["Compress", "PDF files"],
+      title: "Compress PDF: Reduce PDF Size Free, No Upload | File Fusion",
+      name: "Compress PDF",
+      drop: [
+        "Drop PDFs to make them smaller",
+        "Great for scans and photo-heavy PDFs",
+      ],
+      steps: [
+        ["Add your PDFs", "Drop one or more PDFs."],
+        [
+          "Choose a level",
+          "Light keeps the most detail; Strong makes the smallest file.",
+        ],
+        ["Download", "See how much each file shrank, then download it."],
+      ],
+    },
+    icon: "compress",
+    accept: ".pdf,application/pdf",
+    group: "pdf",
+    intro:
+      "Shrink large PDFs, especially scans and photo-heavy documents, so they fit email and upload limits.",
+    uses: [
+      "Get a scan under an email attachment limit",
+      "Upload documents to portals with size caps",
+      "Save storage space",
+    ],
+    faqs: [
+      [
+        "Will the text still be selectable?",
+        "No. Pages are re-rendered as images, which is what makes scans much smaller. Keep the original if you need to copy text.",
+      ],
+      [
+        "What if my PDF doesn't get smaller?",
+        "Text-only PDFs are often already tiny. If compressing wouldn't help, File Fusion tells you and keeps the original.",
+      ],
+    ],
+  },
+  {
+    slug: "organize-pdf",
+    from: "PDF",
+    to: "Organized PDF",
+    tool: {
+      view: "pdf",
+      tab: "organize",
+      heading: ["Rotate & reorder", "PDF pages"],
+      title: "Rotate, Reorder & Delete PDF Pages Free, No Upload | File Fusion",
+      name: "Rotate & reorder PDF pages",
+      drop: ["Drop a PDF to organize", "See every page as a thumbnail"],
+      steps: [
+        [
+          "Add your PDF",
+          "Drop it above and every page appears as a thumbnail.",
+        ],
+        [
+          "Arrange the pages",
+          "Drag to reorder, rotate sideways scans, and delete pages you don't need.",
+        ],
+        ["Save", "Download the new PDF."],
+      ],
+    },
+    icon: "view_module",
+    accept: ".pdf,application/pdf",
+    group: "pdf",
+    intro:
+      "Fix sideways scans, put pages in the right order and remove blank or unwanted pages.",
+    uses: [
+      "Rotate pages that were scanned sideways",
+      "Remove blank pages from a scan",
+      "Reorder pages before sending a document",
+    ],
+    faqs: [
+      [
+        "Is the quality changed?",
+        "No. Pages are copied as they are; only their order and rotation change.",
+      ],
+      [
+        "Can I undo a deletion?",
+        "Drop the PDF again to start over. Nothing changes until you save.",
+      ],
+    ],
+  },
 ];
 
 const esc = (s: string): string =>
@@ -672,11 +1077,60 @@ function related(p: ConverterPage): ConverterPage[] {
   );
 }
 
+/** Wording for a page: conversion pages are templated, tool pages spell it out. */
+function copyFor(p: ConverterPage) {
+  const t = p.tool;
+  if (t)
+    return {
+      title: t.title,
+      h1: t.name,
+      name: t.name,
+      card: t.name,
+      hero: `${esc(t.heading[0])} <span class="accent">${esc(t.heading[1])}</span>`,
+      appUrl: `app.html?view=${t.view}${t.tab ? `&amp;tool=${t.tab}` : ""}`,
+      dropData: `data-view="${t.view}"${t.tab ? ` data-tool="${t.tab}"` : ""}`,
+      dropTitle: t.drop[0],
+      dropLabel: t.drop[0],
+      dropSub: `or <span class="link">choose files</span>. ${esc(t.drop[1])}`,
+      howTitle: `How to ${t.name.charAt(0).toLowerCase()}${t.name.slice(1)}`,
+      steps: t.steps,
+    };
+  const target = p.target ?? "";
+  return {
+    title: `${p.from} to ${p.to} Converter: Free, Private, No Upload | File Fusion`,
+    h1: `${p.from} to ${p.to} converter`,
+    name: `${p.from} to ${p.to} Converter`,
+    card: `${p.from} → ${p.to}`,
+    hero: `${esc(p.from)} to <span class="accent">${esc(p.to)}</span>`,
+    appUrl: `app.html?to=${target}`,
+    dropData: `data-target="${target}"`,
+    dropTitle: `Drop ${p.from} files here`,
+    dropLabel: `Choose ${p.from} files to convert to ${p.to}`,
+    dropSub: `or <span class="link">choose files</span> to convert to ${esc(p.to)}`,
+    howTitle: `How to convert ${p.from} to ${p.to}`,
+    steps: [
+      [
+        `Add your ${p.from} files`,
+        "Drop them above or choose them from your device. You can add many at once.",
+      ],
+      [
+        `Convert to ${p.to}`,
+        `${p.to} is preselected. Click Convert, or Convert all for a batch.`,
+      ],
+      [
+        "Download",
+        `Your ${p.to} files are ready instantly. Nothing was uploaded.`,
+      ],
+    ] as [string, string][],
+  };
+}
+
 function page(p: ConverterPage): string {
-  const title = `${p.from} to ${p.to} Converter: Free, Private, No Upload | File Fusion`;
-  const h1 = `${p.from} to ${p.to} converter`;
+  const c = copyFor(p);
+  const title = c.title;
+  const h1 = c.h1;
   const desc =
-    `Convert ${p.from} to ${p.to} free in your browser. ${(p.intro.split(". ")[0] ?? p.intro).replace(/\.$/, "")}. No uploads, no sign-up, no watermarks.`.slice(
+    `${p.tool ? `${p.tool.name} free in your browser.` : `Convert ${p.from} to ${p.to} free in your browser.`} ${(p.intro.split(". ")[0] ?? p.intro).replace(/\.$/, "")}. No uploads, no sign-up, no watermarks.`.slice(
       0,
       300,
     );
@@ -686,7 +1140,7 @@ function page(p: ConverterPage): string {
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      name: `File Fusion ${p.from} to ${p.to} Converter`,
+      name: `File Fusion ${c.name}`,
       url,
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Any (web browser)",
@@ -753,7 +1207,7 @@ function page(p: ConverterPage): string {
             <a class="gh-star" href="https://github.com/ybelov27/FileFusion" target="_blank" rel="noopener" aria-label="Star File Fusion on GitHub (opens GitHub)" title="Opens File Fusion on GitHub. Click the Star button at the top right to star it.">
                 ${GH}<span>Star</span><span class="gh-count" hidden><svg class="gh-star-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path class="star-fill" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/><path class="star-outline" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"/></svg><span class="gh-count-num" data-gh-stars></span></span>
             </a>
-            <a href="app.html?to=${p.target}" class="btn-primary small">Open converter</a>
+            <a href="${c.appUrl}" class="btn-primary small">Open converter</a>
         </div>
     </nav>
 
@@ -761,7 +1215,7 @@ function page(p: ConverterPage): string {
         <div class="content-left">
             <nav class="breadcrumb" aria-label="Breadcrumb"><a href="./">File Fusion</a> <span aria-hidden="true">›</span> ${esc(h1)}</nav>
             <div class="pill"><span class="material-icons">verified_user</span> 100% private · runs in your browser</div>
-            <h1 class="hero-title page-title">${esc(p.from)} to <span class="accent">${esc(p.to)}</span></h1>
+            <h1 class="hero-title page-title">${c.hero}</h1>
             <p class="hero-subtitle">${esc(p.intro)} Free, no sign-up, and your files never leave your device.</p>
             <ul class="trust">
                 <li><span class="material-icons">check_circle</span> No upload</li>
@@ -770,11 +1224,11 @@ function page(p: ConverterPage): string {
             </ul>
         </div>
         <div class="content-right">
-            <div class="drop-card" id="hero-drop" data-target="${p.target}" tabindex="0" role="button" aria-label="Choose ${esc(p.from)} files to convert to ${esc(p.to)}">
+            <div class="drop-card" id="hero-drop" ${c.dropData} tabindex="0" role="button" aria-label="${esc(c.dropLabel)}">
                 <div class="drop-inner">
                     <span class="material-icons drop-icon">${p.icon}</span>
-                    <h2>Drop ${esc(p.from)} files here</h2>
-                    <p>or <span class="link">choose files</span> to convert to ${esc(p.to)}</p>
+                    <h2>${esc(c.dropTitle)}</h2>
+                    <p>${c.dropSub}</p>
                 </div>
                 <input type="file" id="hero-input" accept="${esc(p.accept)}" multiple hidden>
             </div>
@@ -783,11 +1237,9 @@ function page(p: ConverterPage): string {
     </header>
 
     <section class="section alt">
-        <h2 class="section-title">How to convert ${esc(p.from)} to ${esc(p.to)}</h2>
+        <h2 class="section-title">${esc(c.howTitle)}</h2>
         <div class="steps">
-            <div class="step"><span class="step-num">1</span><h3>Add your ${esc(p.from)} files</h3><p>Drop them above or choose them from your device. You can add many at once.</p></div>
-            <div class="step"><span class="step-num">2</span><h3>Convert to ${esc(p.to)}</h3><p>${esc(p.to)} is preselected. Click Convert, or Convert all for a batch.</p></div>
-            <div class="step"><span class="step-num">3</span><h3>Download</h3><p>Your ${esc(p.to)} files are ready instantly. Nothing was uploaded.</p></div>
+${c.steps.map(([t, b], i) => `            <div class="step"><span class="step-num">${i + 1}</span><h3>${esc(t)}</h3><p>${esc(b)}</p></div>`).join("\n")}
         </div>
     </section>
 
@@ -799,7 +1251,7 @@ ${p.uses.map((u) => `            <li><span class="material-icons">task_alt</span
     </section>
 
     <section class="section alt" id="faq">
-        <h2 class="section-title">${esc(p.from)} to ${esc(p.to)} FAQ</h2>
+        <h2 class="section-title">${esc(p.tool ? p.tool.name : `${p.from} to ${p.to}`)} FAQ</h2>
         <div class="faq">
 ${faqs.map(([q, a], i) => `            <details${i === 0 ? " open" : ""}><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("\n")}
         </div>
@@ -811,7 +1263,7 @@ ${faqs.map(([q, a], i) => `            <details${i === 0 ? " open" : ""}><summar
 ${related(p)
   .map(
     (q) =>
-      `            <a class="format-card" href="${q.slug}.html"><span class="material-icons">${q.icon}</span><strong>${esc(q.from)} → ${esc(q.to)}</strong><span>${esc(q.uses[0] ?? "")}</span></a>`,
+      `            <a class="format-card" href="${q.slug}.html"><span class="material-icons">${q.icon}</span><strong>${esc(copyFor(q).card)}</strong><span>${esc(q.uses[0] ?? "")}</span></a>`,
   )
   .join("\n")}
         </div>

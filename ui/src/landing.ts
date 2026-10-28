@@ -8,11 +8,17 @@ import { showStarCount } from "./stars.ts";
 
 const drop = document.getElementById("hero-drop");
 const input = document.getElementById("hero-input") as HTMLInputElement | null;
-// Conversion pages (e.g. png-to-jpg.html) preselect their target format in the converter.
-const target = drop?.dataset.target;
-const converterUrl = target
-  ? `app.html?to=${encodeURIComponent(target)}`
-  : "app.html";
+// Conversion pages (e.g. png-to-jpg.html) preselect their target format in the
+// converter; tool pages (e.g. merge-pdf.html) open that tool.
+function converterUrl(): string {
+  const params = new URLSearchParams();
+  const { target, view, tool } = drop?.dataset ?? {};
+  if (target) params.set("to", target);
+  if (view) params.set("view", view);
+  if (tool) params.set("tool", tool);
+  const query = params.toString();
+  return query ? `app.html?${query}` : "app.html";
+}
 
 async function start(files: FileList | null): Promise<void> {
   if (!files?.length) return;
@@ -21,7 +27,7 @@ async function start(files: FileList | null): Promise<void> {
   } catch {
     /* fall through: the converter opens empty */
   }
-  location.href = converterUrl;
+  location.href = converterUrl();
 }
 
 if (drop && input) {
