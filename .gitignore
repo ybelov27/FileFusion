@@ -17,9 +17,10 @@ service-account*.json
 
 # Tooling
 node_modules/
+dist/
 .DS_Store
 
-# BEGIN generated converter pages (tools/build-pages.mjs)
+# BEGIN generated converter pages (tools/build-pages.ts)
 /ui/image-to-pdf.html
 /ui/png-to-jpg.html
 /ui/jpg-to-png.html
