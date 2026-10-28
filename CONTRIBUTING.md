@@ -1,21 +1,21 @@
 # Contributing to File Fusion
 
-Thanks for helping! File Fusion is a static site: everything lives in `ui/` and runs in the browser.
+Thanks for helping! File Fusion is a static site written in TypeScript: the app lives in `ui/src/`, the pages in `ui/`, and everything runs in the browser.
 
 ## Run it locally
 
 ```bash
-node tools/build-pages.mjs   # generates the converter pages (not committed)
-cd ui && python3 -m http.server 8000
+npm install
+npm run dev
 ```
 
-Then open http://localhost:8000.
+Then open http://localhost:8000. Before opening a pull request, run `npm run build` (it type-checks and builds) and `npm run format`.
 
 ## Add a conversion format
 
-1. Add the format to `FORMATS` and `targetsFor` in `ui/convert.js`.
-2. Implement it in `convert()` using browser APIs only. Files must never be uploaded.
-3. Optionally add a landing page entry in `tools/build-pages.mjs` and run `node tools/build-pages.mjs`.
+1. Add the format to `FORMATS` and `TARGETS_BY_KIND` in `ui/src/convert/formats.ts`.
+2. Implement it in `convert()` (`ui/src/convert/index.ts`) using browser APIs only. Files must never be uploaded. Heavy libraries should be loaded with `await import(...)` so they only download when used.
+3. Optionally add a landing page entry in `tools/build-pages.ts`; `npm run dev` and `npm run build` regenerate the pages.
 
 ## Good first contributions
 

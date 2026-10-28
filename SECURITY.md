@@ -10,7 +10,7 @@ rather than opening a public issue.
 
 - All conversions run in the browser. Files are never uploaded.
 - The site is static (GitHub Pages) and has no backend, database, or API keys.
-- `ui/config.js` contains only the Google OAuth **client ID**, which is public by
+- `ui/src/config.ts` contains only the Google OAuth **client ID**, which is public by
   design. The OAuth client secret is not used and must never be committed.
 - Google sign-in profile data stays in the visitor's browser `localStorage`.
 - Pages ship a strict Content-Security-Policy that only allows scripts from this

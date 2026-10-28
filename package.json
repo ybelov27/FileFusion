@@ -2,15 +2,28 @@
   "name": "filefusion",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "node tools/build-pages.ts && vite",
+    "build": "node tools/build-pages.ts && npm run typecheck && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "format": "prettier --write .",
+    "banner": "node tools/banner.ts"
+  },
+  "dependencies": {
+    "@imagemagick/magick-wasm": "^0.0.45"
+  },
   "devDependencies": {
+    "@types/node": "^24.19.2",
+    "playwright-core": "^1.48.2",
     "prettier": "^3.9.10",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"
   },
   "peerDependencies": {
     "typescript": "^7"
-  },
-  "dependencies": {
-    "@imagemagick/magick-wasm": "^0.0.45"
   }
 }

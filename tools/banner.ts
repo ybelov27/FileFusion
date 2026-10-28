@@ -1,12 +1,12 @@
 // Renders the README's ANSI-shadow ASCII banner as SVG: every "█" becomes a
 // gradient tile and every box-drawing shadow character a crisp double line,
 // so the art looks the same in every font. Writes .github/banner-{light,dark}.svg.
-//   node tools/banner.mjs
+//   node tools/banner.ts
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), "..");
-const G = {
+const ROOT = path.join(import.meta.dirname, "..");
+const G: Record<string, string[]> = {
   F: ["███████╗", "██╔════╝", "█████╗  ", "██╔══╝  ", "██║     ", "╚═╝     "],
   I: ["██╗", "██║", "██║", "██║", "██║", "╚═╝"],
   L: ["██╗     ", "██║     ", "██║     ", "██║     ", "███████╗", "╚══════╝"],
@@ -39,7 +39,7 @@ const G = {
   " ": Array(6).fill("   "),
 };
 const rows = Array.from({ length: 6 }, (_, r) =>
-  [..."FILE FUSION"].map((c) => G[c][r]).join(""),
+  [..."FILE FUSION"].map((c) => G[c]![r]).join(""),
 );
 const cols = Math.max(...rows.map((r) => [...r].length));
 
@@ -54,7 +54,7 @@ const GAP = 2.4,
   SW = 1.4; // double-line spacing and stroke width
 
 // Double box-drawing glyphs as two parallel strokes inside one cell.
-function boxPath(ch, x, y) {
+function boxPath(ch: string, x: number, y: number): string {
   const cx = x + CW / 2,
     cy = y + CH / 2,
     l = x,
@@ -62,39 +62,42 @@ function boxPath(ch, x, y) {
     t = y,
     b = y + CH;
   const o = GAP,
-    segs = {
-      "═": [
-        [l, cy - o, r, cy - o],
-        [l, cy + o, r, cy + o],
-      ],
-      "║": [
-        [cx - o, t, cx - o, b],
-        [cx + o, t, cx + o, b],
-      ],
-      "╗": [
-        [l, cy - o, cx + o, cy - o, cx + o, b],
-        [l, cy + o, cx - o, cy + o, cx - o, b],
-      ],
-      "╔": [
-        [r, cy - o, cx - o, cy - o, cx - o, b],
-        [r, cy + o, cx + o, cy + o, cx + o, b],
-      ],
-      "╝": [
-        [cx + o, t, cx + o, cy + o, l, cy + o],
-        [cx - o, t, cx - o, cy - o, l, cy - o],
-      ],
-      "╚": [
-        [cx - o, t, cx - o, cy + o, r, cy + o],
-        [cx + o, t, cx + o, cy - o, r, cy - o],
-      ],
-    }[ch];
+    segs = (
+      {
+        "═": [
+          [l, cy - o, r, cy - o],
+          [l, cy + o, r, cy + o],
+        ],
+        "║": [
+          [cx - o, t, cx - o, b],
+          [cx + o, t, cx + o, b],
+        ],
+        "╗": [
+          [l, cy - o, cx + o, cy - o, cx + o, b],
+          [l, cy + o, cx - o, cy + o, cx - o, b],
+        ],
+        "╔": [
+          [r, cy - o, cx - o, cy - o, cx - o, b],
+          [r, cy + o, cx + o, cy + o, cx + o, b],
+        ],
+        "╝": [
+          [cx + o, t, cx + o, cy + o, l, cy + o],
+          [cx - o, t, cx - o, cy - o, l, cy - o],
+        ],
+        "╚": [
+          [cx - o, t, cx - o, cy + o, r, cy + o],
+          [cx + o, t, cx + o, cy - o, r, cy - o],
+        ],
+      } as Record<string, number[][]>
+    )[ch];
   if (!segs) return "";
   return segs
     .map(
       (pts) =>
         "M" +
         pts.reduce(
-          (acc, v, i) => acc + (i % 2 ? "," : i ? " L" : "") + v.toFixed(1),
+          (acc: string, v, i) =>
+            acc + (i % 2 ? "," : i ? " L" : "") + v.toFixed(1),
           "",
         ),
     )
@@ -115,13 +118,13 @@ rows.forEach((row, ri) => {
       while (chars[end + 1] === "█") end++;
       blocks += `<rect x="${X0 + ci * CW}" y="${y}" width="${(end - ci + 1) * CW}" height="${CH + 1}"/>`;
       ci = end;
-    } else if (ch !== " ") lines += boxPath(ch, X0 + ci * CW, y) + " ";
+    } else if (ch && ch !== " ") lines += boxPath(ch, X0 + ci * CW, y) + " ";
   }
 });
 
 const TAG =
   "convert any file  ·  right in your browser  ·  free &amp; open source";
-const themes = {
+const themes: Record<string, Theme> = {
   // Light blue to blue only. Deeper on white for contrast, brighter on GitHub's dark background.
   light: {
     stops: ["#5ab0ff", "#2b8cf0", "#1560d4"],
@@ -139,7 +142,15 @@ const themes = {
   },
 };
 
-function svg({ stops, shadow, sheen, tag, bar }) {
+interface Theme {
+  stops: [string, string, string];
+  shadow: string;
+  sheen: number;
+  tag: string;
+  bar: number;
+}
+
+function svg({ stops, shadow, sheen, tag, bar }: Theme): string {
   const artW = cols * CW,
     barY = PAD_TOP + ARTH + 22;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-labelledby="t">

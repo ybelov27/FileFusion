@@ -1,22 +1,31 @@
 // Generates one landing page per popular conversion (ui/<slug>.html) and
-// ui/sitemap.xml. No dependencies:
-//   node tools/build-pages.mjs
+// ui/public/sitemap.xml. Runs before every build (npm run build/dev), or:
+//   node tools/build-pages.ts
 import fs from "node:fs";
 import path from "node:path";
 
 const SITE = "https://ybelov27.github.io/FileFusion/";
-const UI = path.join(
-  path.dirname(new URL(import.meta.url).pathname),
-  "..",
-  "ui",
-);
-const V = fs
-  .readFileSync(path.join(UI, "index.html"), "utf8")
-  .match(/\?v=([\w]+)/)[1];
+const UI = path.join(import.meta.dirname, "..", "ui");
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const IMG = "image/*,.png,.jpg,.jpeg,.webp,.gif,.svg,.bmp,.avif,.ico";
-const pages = [
+type Faq = [question: string, answer: string];
+
+interface ConverterPage {
+  slug: string;
+  from: string;
+  to: string;
+  // Format preselected in the converter (a key of FORMATS in ui/src/convert/formats.ts).
+  target: string;
+  icon: string;
+  accept: string;
+  group: "image" | "audio" | "data" | "text";
+  intro: string;
+  uses: string[];
+  faqs: Faq[];
+}
+
+const pages: ConverterPage[] = [
   {
     slug: "image-to-pdf",
     from: "Image",
@@ -633,7 +642,7 @@ const pages = [
   },
 ];
 
-const esc = (s) =>
+const esc = (s: string): string =>
   String(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -643,7 +652,7 @@ const CSP =
   "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com; connect-src 'self' https://api.github.com https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; object-src 'none'; base-uri 'none'; form-action 'none'";
 const GH =
   '<svg class="gh-mark" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>';
-const SHARED_FAQS = [
+const SHARED_FAQS: Faq[] = [
   [
     "Is it free?",
     "Yes. File Fusion is free and open source, with no limits, ads or watermarks.",
@@ -654,7 +663,7 @@ const SHARED_FAQS = [
   ],
 ];
 
-function related(p) {
+function related(p: ConverterPage): ConverterPage[] {
   const same = pages.filter((q) => q !== p && q.group === p.group);
   const other = pages.filter((q) => q !== p && q.group !== p.group);
   return [...same.slice(0, 6), ...other.filter((_, i) => i % 5 === 0)].slice(
@@ -663,11 +672,11 @@ function related(p) {
   );
 }
 
-function page(p) {
+function page(p: ConverterPage): string {
   const title = `${p.from} to ${p.to} Converter: Free, Private, No Upload | File Fusion`;
   const h1 = `${p.from} to ${p.to} converter`;
   const desc =
-    `Convert ${p.from} to ${p.to} free in your browser. ${p.intro.split(". ")[0].replace(/\.$/, "")}. No uploads, no sign-up, no watermarks.`.slice(
+    `Convert ${p.from} to ${p.to} free in your browser. ${(p.intro.split(". ")[0] ?? p.intro).replace(/\.$/, "")}. No uploads, no sign-up, no watermarks.`.slice(
       0,
       300,
     );
@@ -727,7 +736,7 @@ function page(p) {
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231a73e8' d='M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z'/></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="landing-styles.css?v=${V}">
+    <link rel="stylesheet" href="./landing-styles.css">
     <script type="application/ld+json">${JSON.stringify(ld)}</script>
 </head>
 <body>
@@ -802,7 +811,7 @@ ${faqs.map(([q, a], i) => `            <details${i === 0 ? " open" : ""}><summar
 ${related(p)
   .map(
     (q) =>
-      `            <a class="format-card" href="${q.slug}.html"><span class="material-icons">${q.icon}</span><strong>${esc(q.from)} → ${esc(q.to)}</strong><span>${esc(q.uses[0])}</span></a>`,
+      `            <a class="format-card" href="${q.slug}.html"><span class="material-icons">${q.icon}</span><strong>${esc(q.from)} → ${esc(q.to)}</strong><span>${esc(q.uses[0] ?? "")}</span></a>`,
   )
   .join("\n")}
         </div>
@@ -826,9 +835,7 @@ ${related(p)
         </span>
     </footer>
 
-    <script src="handoff.js?v=${V}"></script>
-    <script src="share.js?v=${V}"></script>
-    <script src="landing.js?v=${V}"></script>
+    <script type="module" src="./src/landing.ts"></script>
 </body>
 </html>
 `;
@@ -837,14 +844,14 @@ ${related(p)
 for (const p of pages)
   fs.writeFileSync(path.join(UI, `${p.slug}.html`), page(p));
 
-const urls = [
+const urls: [path: string, priority: string][] = [
   ["", "1.0"],
-  ...pages.map((p) => [`${p.slug}.html`, "0.8"]),
+  ...pages.map((p): [string, string] => [`${p.slug}.html`, "0.8"]),
   ["app.html", "0.7"],
   ["privacy.html", "0.3"],
 ];
 fs.writeFileSync(
-  path.join(UI, "sitemap.xml"),
+  path.join(UI, "public", "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(([u, pr]) => `  <url><loc>${SITE}${u}</loc><lastmod>${TODAY}</lastmod><priority>${pr}</priority></url>`).join("\n")}
@@ -855,7 +862,7 @@ ${urls.map(([u, pr]) => `  <url><loc>${SITE}${u}</loc><lastmod>${TODAY}</lastmod
 // Keep the generated pages out of git with an exact list (not a wildcard), so
 // hand-written pages with similar names are never ignored by accident.
 const GITIGNORE = path.join(UI, "..", ".gitignore");
-const BEGIN = "# BEGIN generated converter pages (tools/build-pages.mjs)";
+const BEGIN = "# BEGIN generated converter pages (tools/build-pages.ts)";
 const END = "# END generated converter pages";
 const block = [BEGIN, ...pages.map((p) => `/ui/${p.slug}.html`), END].join(
   "\n",
@@ -863,8 +870,12 @@ const block = [BEGIN, ...pages.map((p) => `/ui/${p.slug}.html`), END].join(
 const current = fs.existsSync(GITIGNORE)
   ? fs.readFileSync(GITIGNORE, "utf8")
   : "";
-const start = current.indexOf(BEGIN),
-  stop = current.indexOf(END);
+// Also recognise the marker written by the old tools/build-pages.mjs.
+const start = Math.max(
+  current.indexOf(BEGIN),
+  current.indexOf(BEGIN.replace(".ts)", ".mjs)")),
+);
+const stop = current.indexOf(END);
 fs.writeFileSync(
   GITIGNORE,
   start >= 0 && stop > start
